@@ -16,17 +16,17 @@ export interface TileProps {
 
 const getTerrainColor = (terrainType: TerrainType): number => {
   switch (terrainType) {
-    case TerrainType.VOID:
+    case 'VOID':
       return 0x000000; // Black
-    case TerrainType.Grassland:
+    case 'Grassland':
       return 0x00ff00; // Green
-    case TerrainType.Water:
+    case 'Water':
       return 0x0000ff; // Blue
-    case TerrainType.Plains:
+    case 'Plains':
       return 0xffd733;
-    case TerrainType.Sand:
+    case 'Sand':
       return 0xffff00; // Yellow
-    case TerrainType.Mountain:
+    case 'Mountain':
       return 0x808080; // Gray
     // ... add other cases for different terrain types
     default:
