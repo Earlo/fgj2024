@@ -26,15 +26,11 @@ export const Map = () => {
       [x, y + 1],
     ];
     const { isoX, isoY } = toIso(x, y);
-    const newMaxX = Math.max(mapDimensions.maxx, isoX);
-    const newMaxY = Math.max(mapDimensions.maxy, isoY);
-    const newMinX = Math.min(mapDimensions.minx, isoX);
-    const newMinY = Math.min(mapDimensions.miny, isoY);
     setMapDimensions({
-      maxx: newMaxX,
-      maxy: newMaxY,
-      minx: newMinX,
-      miny: newMinY,
+      maxx: Math.max(mapDimensions.maxx, isoX),
+      maxy: Math.max(mapDimensions.maxy, isoY),
+      minx: Math.min(mapDimensions.minx, isoX),
+      miny: Math.min(mapDimensions.miny, isoY),
     });
     const key = `${x},${y}`;
     const weights = neighbours
