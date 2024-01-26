@@ -1,7 +1,7 @@
 'use client';
-import { Tile, TileProps } from './Tile';
+import { Tile } from './Tile';
 import { Container } from '@pixi/react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface MapProps {
   width: number;
@@ -114,13 +114,10 @@ export const Map = ({ width, height }: MapProps) => {
         },
         {} as Record<TerrainType, number>,
       );
-    // if all weights are 0, then it's grassland
-
     const totalWeight: number = Object.values(weights).reduce(
       (acc: number, weight: number) => acc + weight,
       0,
     );
-
     if (totalWeight === 0) {
       setTerrainMap((prev) => {
         const copy = [...prev];
@@ -130,7 +127,6 @@ export const Map = ({ width, height }: MapProps) => {
     }
     const random = Math.random() * totalWeight;
     let cumulativeWeight = 0;
-
     for (const [terrain, weight] of Object.entries(weights)) {
       cumulativeWeight += weight;
       if (random <= cumulativeWeight) {

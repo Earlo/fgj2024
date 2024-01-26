@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import { Container, Graphics, Sprite } from '@pixi/react';
-import { Graphics as PixiGraphics, BlurFilter, NoiseFilter } from 'pixi.js';
+import { Graphics, Sprite } from '@pixi/react';
+import { Graphics as PixiGraphics, NoiseFilter } from 'pixi.js';
 
 const TILE_WIDTH = 64;
 const TILE_HEIGHT = 32;
