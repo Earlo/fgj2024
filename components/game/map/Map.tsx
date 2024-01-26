@@ -1,85 +1,23 @@
 'use client';
 import { Tile } from './Tile';
-import { Container } from '@pixi/react';
+import { ScrollWindow } from './ScrollWindow';
+import { TerrainType, TerrainTypes, NeighborWeights } from '@/lib/constants';
+import { toIso } from '@/lib/utils';
 import { useState } from 'react';
-
-export const TerrainTypes = [
-  'VOID',
-  'Grassland',
-  'Water',
-  'Plains',
-  'Mountain',
-  'Sand',
-] as const;
-export type TerrainType = (typeof TerrainTypes)[number];
 type Coordinates = `${number},${number}`;
-interface MapProps {
-  width: number;
-  height: number;
-}
 
-const NeighborWeights: {
-  [K in TerrainType]: {
-    [K in TerrainType]: number;
-  };
-} = {
-  Grassland: {
-    Grassland: 1,
-    Water: 0,
-    Plains: 0.5,
-    Sand: 0.05,
-    Mountain: 0.01,
-    VOID: 0,
-  },
-  Water: {
-    Grassland: 0,
-    Water: 1,
-    Plains: 0,
-    Sand: 0.1,
-    Mountain: 0,
-    VOID: 0,
-  },
-  Plains: {
-    Grassland: 0.5,
-    Water: 0,
-    Plains: 1,
-    Sand: 0.2,
-    Mountain: 0.2,
-    VOID: 0,
-  },
-  Sand: {
-    Grassland: 0.5,
-    Water: 1,
-    Plains: 0.5,
-    Sand: 0.2,
-    Mountain: 0.2,
-    VOID: 0,
-  },
-  Mountain: {
-    Grassland: 0.15,
-    Water: -0.1,
-    Plains: 0.3,
-    Sand: -0.05,
-    Mountain: 1,
-    VOID: 0,
-  },
-  VOID: {
-    Grassland: 0,
-    Water: 0,
-    Plains: 0,
-    Sand: 0,
-    Mountain: 0,
-    VOID: 0,
-  },
-};
-
-export const Map = ({ width, height }: MapProps) => {
+export const Map = () => {
   const [terrainMap, setTerrainMap] = useState<
     Record<Coordinates, TerrainType>
   >({
     '0,0': 'VOID',
   });
-
+  const [mapDimensions, setMapDimensions] = useState({
+    maxx: 0,
+    maxy: 0,
+    minx: 0,
+    miny: 0,
+  });
   const discoverTile = (x: number, y: number) => {
     const neighbours = [
       [x, y - 1],
@@ -87,8 +25,18 @@ export const Map = ({ width, height }: MapProps) => {
       [x + 1, y],
       [x, y + 1],
     ];
+    const { isoX, isoY } = toIso(x, y);
+    const newMaxX = Math.max(mapDimensions.maxx, isoX);
+    const newMaxY = Math.max(mapDimensions.maxy, isoY);
+    const newMinX = Math.min(mapDimensions.minx, isoX);
+    const newMinY = Math.min(mapDimensions.miny, isoY);
+    setMapDimensions({
+      maxx: newMaxX,
+      maxy: newMaxY,
+      minx: newMinX,
+      miny: newMinY,
+    });
     const key = `${x},${y}`;
-
     const weights = neighbours
       .map(([nx, ny]) => {
         if (!terrainMap[`${nx},${ny}`]) {
@@ -129,8 +77,8 @@ export const Map = ({ width, height }: MapProps) => {
         break;
       }
     }
-    console.log(x, y, weights);
   };
+
   const tiles = Object.entries(terrainMap).map(([key, terrainType]) => {
     const [x, y] = key.split(',').map(Number);
     return (
@@ -145,5 +93,14 @@ export const Map = ({ width, height }: MapProps) => {
     );
   });
   console.log(terrainMap);
-  return <Container>{tiles}</Container>;
+  return (
+    <ScrollWindow
+      maxX={mapDimensions.maxx + 100}
+      maxY={mapDimensions.maxy + 100}
+      minX={mapDimensions.minx - 100}
+      minY={mapDimensions.miny - 100}
+    >
+      {tiles}
+    </ScrollWindow>
+  );
 };
