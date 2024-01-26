@@ -3,12 +3,7 @@ import { Tile } from './Tile';
 import { Container } from '@pixi/react';
 import { useState } from 'react';
 
-interface MapProps {
-  width: number;
-  height: number;
-}
-
-enum TerrainType {
+export enum TerrainType {
   VOID = 'VOID',
   Grassland = 'Grassland',
   Water = 'Water',
@@ -17,41 +12,46 @@ enum TerrainType {
   Sand = 'Sand',
   // ... add other terrain types here
 }
+type Coordinates = `${number},${number}`;
+interface MapProps {
+  width: number;
+  height: number;
+}
 
 const NeighborWeights = {
   [TerrainType.Grassland]: {
     [TerrainType.Grassland]: 1,
     [TerrainType.Water]: 0,
     [TerrainType.Plains]: 0.5,
-    [TerrainType.Sand]: 0.2,
-    [TerrainType.Mountain]: 0.2,
+    [TerrainType.Sand]: 0.05,
+    [TerrainType.Mountain]: 0.01,
   },
   [TerrainType.Water]: {
     [TerrainType.Grassland]: 0,
     [TerrainType.Water]: 1,
     [TerrainType.Plains]: 0,
-    [TerrainType.Sand]: 0.2,
+    [TerrainType.Sand]: 0.1,
     [TerrainType.Mountain]: 0,
   },
   [TerrainType.Plains]: {
     [TerrainType.Grassland]: 0.5,
     [TerrainType.Water]: 0,
     [TerrainType.Plains]: 1,
-    [TerrainType.Sand]: 0.5,
+    [TerrainType.Sand]: 0.2,
     [TerrainType.Mountain]: 0.2,
   },
   [TerrainType.Sand]: {
     [TerrainType.Grassland]: 0.5,
     [TerrainType.Water]: 1,
     [TerrainType.Plains]: 0.5,
-    [TerrainType.Sand]: 1,
+    [TerrainType.Sand]: 0.2,
     [TerrainType.Mountain]: 0.2,
   },
   [TerrainType.Mountain]: {
-    [TerrainType.Grassland]: 0.2,
-    [TerrainType.Water]: 0,
-    [TerrainType.Plains]: 0.2,
-    [TerrainType.Sand]: 0.2,
+    [TerrainType.Grassland]: 0.15,
+    [TerrainType.Water]: -0.1,
+    [TerrainType.Plains]: 0.3,
+    [TerrainType.Sand]: -0.05,
     [TerrainType.Mountain]: 1,
   },
   [TerrainType.VOID]: {
@@ -63,32 +63,12 @@ const NeighborWeights = {
   },
 };
 
-const getTerrainColor = (terrainType: TerrainType): number => {
-  switch (terrainType) {
-    case TerrainType.VOID:
-      return 0x000000; // Black
-    case TerrainType.Grassland:
-      return 0x00ff00; // Green
-    case TerrainType.Water:
-      return 0x0000ff; // Blue
-    case TerrainType.Plains:
-      return 0xffff00; // Yellow
-    case TerrainType.Sand:
-      return 0xffd700; // Sand color
-    case TerrainType.Mountain:
-      return 0x808080; // Gray
-    // ... add other cases for different terrain types
-    default:
-      return 0xffffff; // Default color if none match
-  }
-};
-
 export const Map = ({ width, height }: MapProps) => {
-  const [terrainMap, setTerrainMap] = useState<TerrainType[][]>(
-    Array.from({ length: height }, () =>
-      Array.from({ length: width }, () => TerrainType.VOID),
-    ),
-  );
+  const [terrainMap, setTerrainMap] = useState<
+    Record<Coordinates, TerrainType>
+  >({
+    '0,0': TerrainType.VOID,
+  });
 
   const discoverTile = (x: number, y: number) => {
     const neighbours = [
@@ -97,12 +77,16 @@ export const Map = ({ width, height }: MapProps) => {
       [x + 1, y],
       [x, y + 1],
     ];
+    const key = `${x},${y}`;
     const weights: { TerrainType: number } = neighbours
       .flatMap(([nx, ny]) => {
-        if (nx < 0 || nx >= width || ny < 0 || ny >= height) {
-          return {};
+        // if neighbour doesn't exist, create a new void tile
+        if (!terrainMap[`${nx},${ny}`]) {
+          setTerrainMap((prev) => {
+            return { ...prev, [`${nx},${ny}`]: TerrainType.VOID };
+          });
         }
-        return NeighborWeights[terrainMap[ny][nx]];
+        return NeighborWeights[terrainMap[`${nx},${ny}`] || TerrainType.VOID];
       })
       .reduce(
         //eslint-disable-next-line
@@ -120,9 +104,7 @@ export const Map = ({ width, height }: MapProps) => {
     );
     if (totalWeight === 0) {
       setTerrainMap((prev) => {
-        const copy = [...prev];
-        copy[y][x] = TerrainType.Grassland;
-        return copy;
+        return { ...prev, [key]: TerrainType.Grassland };
       });
     }
     const random = Math.random() * totalWeight;
@@ -131,28 +113,26 @@ export const Map = ({ width, height }: MapProps) => {
       cumulativeWeight += weight;
       if (random <= cumulativeWeight) {
         setTerrainMap((prev) => {
-          const copy = [...prev];
-          copy[y][x] = terrain as TerrainType;
-          return copy;
+          return { ...prev, [key]: terrain };
         });
         break;
       }
     }
     console.log(x, y, weights);
   };
-
-  const tiles = terrainMap.flatMap((row, y) =>
-    row.map((terrainType, x) => (
+  const tiles = Object.entries(terrainMap).map(([key, terrainType]) => {
+    const [x, y] = key.split(',').map(Number);
+    return (
       <Tile
         key={`${x}-${y}`}
         x={x}
         y={y}
-        color={getTerrainColor(terrainType)}
+        terrain={terrainType}
         level={0}
         onClick={discoverTile}
       />
-    )),
-  );
-
+    );
+  });
+  console.log(tiles);
   return <Container>{tiles}</Container>;
 };
