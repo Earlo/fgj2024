@@ -1,30 +1,19 @@
 'use client';
 import { Tile } from './Tile';
-import { ScrollWindow } from './ScrollWindow';
-import {
-  TerrainType,
-  TerrainTypes,
-  NeighborWeights,
-  TILE_WIDTH,
-  TILE_HEIGHT,
-} from '@/lib/constants';
-import { toIso } from '@/lib/utils';
-import { Rect } from '@/components/Rect';
+import { TerrainType, TerrainTypes, NeighborWeights } from '@/lib/constants';
 import { useState } from 'react';
 
 type Coordinates = `${number},${number}`;
 
-export const Map = () => {
+interface MapProps {
+  updateMapDimensions: (x: number, y: number) => void;
+}
+
+export const Map = ({ updateMapDimensions }: MapProps) => {
   const [terrainMap, setTerrainMap] = useState<
     Record<Coordinates, TerrainType>
   >({
     '0,0': 'VOID',
-  });
-  const [mapDimensions, setMapDimensions] = useState({
-    maxx: 0,
-    maxy: 0,
-    minx: 0,
-    miny: 0,
   });
   const discoverTile = (x: number, y: number) => {
     const neighbours = [
@@ -33,13 +22,7 @@ export const Map = () => {
       [x + 1, y],
       [x, y + 1],
     ];
-    const { isoX, isoY } = toIso(x, y);
-    setMapDimensions({
-      maxx: Math.max(mapDimensions.maxx, isoX),
-      maxy: Math.max(mapDimensions.maxy, isoY),
-      minx: Math.min(mapDimensions.minx, isoX),
-      miny: Math.min(mapDimensions.miny, isoY),
-    });
+    updateMapDimensions(x, y);
     const key = `${x},${y}`;
     const weights = neighbours
       .map(([nx, ny]) => {
@@ -95,28 +78,5 @@ export const Map = () => {
       />
     );
   });
-  return (
-    <ScrollWindow
-      maxX={mapDimensions.maxx}
-      maxY={mapDimensions.maxy}
-      minX={mapDimensions.minx}
-      minY={mapDimensions.miny}
-    >
-      {tiles}
-      <Rect
-        x={mapDimensions.minx - TILE_WIDTH}
-        y={mapDimensions.miny - TILE_HEIGHT / 2}
-        w={mapDimensions.maxx - mapDimensions.minx + TILE_WIDTH * 2}
-        h={mapDimensions.maxy - mapDimensions.miny + TILE_HEIGHT * 2}
-        color={0xff000f}
-      />
-      <Rect
-        x={mapDimensions.minx}
-        y={mapDimensions.miny}
-        w={mapDimensions.maxx - mapDimensions.minx}
-        h={mapDimensions.maxy - mapDimensions.miny}
-        color={0xf0ff00}
-      />
-    </ScrollWindow>
-  );
+  return <>{tiles}</>;
 };

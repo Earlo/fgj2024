@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Container } from '@pixi/react';
 
 interface ScrollWindowProps {
+  centerX: number;
+  centerY: number;
   maxX: number;
   maxY: number;
   minX: number;
@@ -10,13 +12,18 @@ interface ScrollWindowProps {
 }
 
 export const ScrollWindow = ({
+  centerX,
+  centerY,
   maxX,
   maxY,
   minX,
   minY,
   children,
 }: ScrollWindowProps) => {
-  const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
+  const [scrollPosition, setScrollPosition] = useState({
+    x: 0,
+    y: 0,
+  });
   const [scrollSpeed, setScrollSpeed] = useState({ dx: 0, dy: 0 });
   useEffect(() => {
     const interval = setInterval(() => {
@@ -48,9 +55,9 @@ export const ScrollWindow = ({
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
-
+  console.log(scrollPosition);
   return (
-    <Container x={-scrollPosition.x} y={-scrollPosition.y}>
+    <Container x={centerX - scrollPosition.x} y={centerY - scrollPosition.y}>
       {children}
     </Container>
   );
