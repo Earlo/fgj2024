@@ -55,7 +55,6 @@ export const ScrollWindow = ({
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
-  console.log(scrollPosition);
   return (
     <Container x={centerX - scrollPosition.x} y={centerY - scrollPosition.y}>
       {children}

@@ -40,7 +40,7 @@ export const Game = () => {
     <Stage
       width={gameSize.width}
       height={gameSize.height}
-      options={{ backgroundColor: 0x101010 }}
+      options={{ backgroundColor: 0x000000 }}
     >
       <ScrollWindow
         centerX={gameSize.width / 2}

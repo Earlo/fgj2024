@@ -7,7 +7,7 @@ export const toIso = (x: number, y: number) => ({
 export const getTerrainColor = (terrainType: TerrainType): number => {
   switch (terrainType) {
     case 'VOID':
-      return 0x000000; // Black
+      return 0x202020; // Black
     case 'Grassland':
       return 0x00ff00; // Green
     case 'Water':
