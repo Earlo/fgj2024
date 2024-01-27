@@ -18,7 +18,6 @@ export const ScrollWindow = ({
 }: ScrollWindowProps) => {
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 });
   const [scrollSpeed, setScrollSpeed] = useState({ dx: 0, dy: 0 });
-  console.log(maxX, maxY, minX, minY);
   useEffect(() => {
     const interval = setInterval(() => {
       if (scrollSpeed.dx !== 0 || scrollSpeed.dy !== 0) {
@@ -37,12 +36,10 @@ export const ScrollWindow = ({
       const threshold = 50; // Distance in pixels from the edge to start scrolling
       let dx = 0;
       let dy = 0;
-
-      if (clientX < threshold) dx = 5;
-      else if (window.innerWidth - clientX < threshold) dx = -5;
-      if (clientY < threshold) dy = 5;
-      else if (window.innerHeight - clientY < threshold) dy = -5;
-
+      if (clientX < threshold) dx = -5;
+      else if (window.innerWidth - clientX < threshold) dx = 5;
+      if (clientY < threshold) dy = -5;
+      else if (window.innerHeight - clientY < threshold) dy = 5;
       setScrollSpeed({ dx, dy });
     };
 
@@ -53,7 +50,7 @@ export const ScrollWindow = ({
   }, []);
 
   return (
-    <Container x={scrollPosition.x} y={scrollPosition.y}>
+    <Container x={-scrollPosition.x} y={-scrollPosition.y}>
       {children}
     </Container>
   );

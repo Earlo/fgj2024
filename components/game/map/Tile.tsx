@@ -1,5 +1,5 @@
 import { TILE_HEIGHT, TILE_WIDTH, TerrainType } from '@/lib/constants';
-import { toIso } from '@/lib/utils';
+import { toIso, getTerrainColor } from '@/lib/utils';
 import React, { useCallback } from 'react';
 import { Graphics, Sprite } from '@pixi/react';
 import { Graphics as PixiGraphics, NoiseFilter } from 'pixi.js';
@@ -8,30 +8,9 @@ export interface TileProps {
   y: number;
   terrain: TerrainType;
   level: number;
-  onClick: (x: number, y: number) => void; // Add an onClick prop
+  onClick: (x: number, y: number) => void;
 }
 
-const getTerrainColor = (terrainType: TerrainType): number => {
-  switch (terrainType) {
-    case 'VOID':
-      return 0x000000; // Black
-    case 'Grassland':
-      return 0x00ff00; // Green
-    case 'Water':
-      return 0x0000ff; // Blue
-    case 'Plains':
-      return 0xffd733;
-    case 'Sand':
-      return 0xffff00; // Yellow
-    case 'Mountain':
-      return 0x808080; // Gray
-    // ... add other cases for different terrain types
-    default:
-      return 0xffffff; // Default color if none match
-  }
-};
-
-const noiseFilter = new NoiseFilter(0.2);
 export const Tile = ({ x, y, terrain, level, onClick }: TileProps) => {
   const { isoX, isoY } = toIso(x, y);
   const color = getTerrainColor(terrain);
@@ -61,7 +40,7 @@ export const Tile = ({ x, y, terrain, level, onClick }: TileProps) => {
         draw={drawTile}
         pointertap={handleOnClick}
         interactive
-        filters={[noiseFilter]}
+        filters={[new NoiseFilter(0.2)]}
       />
       {level > 0 && (
         <Sprite x={isoX} y={isoY} image="house0.png" anchor={0.5} />

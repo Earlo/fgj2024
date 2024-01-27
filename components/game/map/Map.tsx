@@ -1,9 +1,17 @@
 'use client';
 import { Tile } from './Tile';
 import { ScrollWindow } from './ScrollWindow';
-import { TerrainType, TerrainTypes, NeighborWeights } from '@/lib/constants';
+import {
+  TerrainType,
+  TerrainTypes,
+  NeighborWeights,
+  TILE_WIDTH,
+  TILE_HEIGHT,
+} from '@/lib/constants';
 import { toIso } from '@/lib/utils';
+import { Rect } from '@/components/Rect';
 import { useState } from 'react';
+
 type Coordinates = `${number},${number}`;
 
 export const Map = () => {
@@ -56,7 +64,6 @@ export const Map = () => {
       0,
     );
     if (totalWeight === 0) {
-      console.log('No neighbors, setting to grasslands', key);
       setTerrainMap((prev) => {
         return { ...prev, [key]: 'Grassland' };
       });
@@ -88,15 +95,28 @@ export const Map = () => {
       />
     );
   });
-  console.log(terrainMap);
   return (
     <ScrollWindow
-      maxX={mapDimensions.maxx + 100}
-      maxY={mapDimensions.maxy + 100}
-      minX={mapDimensions.minx - 100}
-      minY={mapDimensions.miny - 100}
+      maxX={mapDimensions.maxx}
+      maxY={mapDimensions.maxy}
+      minX={mapDimensions.minx}
+      minY={mapDimensions.miny}
     >
       {tiles}
+      <Rect
+        x={mapDimensions.minx - TILE_WIDTH}
+        y={mapDimensions.miny - TILE_HEIGHT / 2}
+        w={mapDimensions.maxx - mapDimensions.minx + TILE_WIDTH * 2}
+        h={mapDimensions.maxy - mapDimensions.miny + TILE_HEIGHT * 2}
+        color={0xff000f}
+      />
+      <Rect
+        x={mapDimensions.minx}
+        y={mapDimensions.miny}
+        w={mapDimensions.maxx - mapDimensions.minx}
+        h={mapDimensions.maxy - mapDimensions.miny}
+        color={0xf0ff00}
+      />
     </ScrollWindow>
   );
 };
