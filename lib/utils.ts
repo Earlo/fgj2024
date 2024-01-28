@@ -4,6 +4,13 @@ export const toIso = (x: number, y: number) => ({
   isoY: (x + y) * (TILE_HEIGHT / 2),
 });
 
+export const getNeighbours = (x: number, y: number) => [
+  [x, y - 1],
+  [x - 1, y],
+  [x + 1, y],
+  [x, y + 1],
+];
+
 export const getTerrainColor = (terrainType: TerrainType): number => {
   switch (terrainType) {
     case 'VOID':

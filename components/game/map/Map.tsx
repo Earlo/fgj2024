@@ -1,31 +1,28 @@
 'use client';
 import { Tile } from './Tile';
 import { TerrainType, TerrainTypes, NeighborWeights } from '@/lib/constants';
-import { useState, useMemo, useCallback } from 'react';
+import { getNeighbours } from '@/lib/utils';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 
 type Coordinates = `${number},${number}`;
 
 interface MapProps {
   updateMapDimensions: (x: number, y: number) => void;
+  characterPosition: { x: number; y: number };
 }
 
-export const Map = ({ updateMapDimensions }: MapProps) => {
+export const Map = ({ updateMapDimensions, characterPosition }: MapProps) => {
   const [terrainMap, setTerrainMap] = useState<
     Record<Coordinates, TerrainType>
   >({
     '0,0': 'VOID',
   });
+
   const discoverTile = useCallback(
     (x: number, y: number) => {
-      const neighbours = [
-        [x, y - 1],
-        [x - 1, y],
-        [x + 1, y],
-        [x, y + 1],
-      ];
       updateMapDimensions(x, y);
       const key = `${x},${y}`;
-      const weights = neighbours
+      const weights = getNeighbours(x, y)
         .map(([nx, ny]) => {
           if (!terrainMap[`${nx},${ny}`]) {
             setTerrainMap((prev) => {
@@ -67,6 +64,14 @@ export const Map = ({ updateMapDimensions }: MapProps) => {
     },
     [terrainMap, updateMapDimensions],
   );
+  useEffect(() => {
+    if (
+      terrainMap[`${characterPosition.x},${characterPosition.y}`] === 'VOID' ||
+      !terrainMap[`${characterPosition.x},${characterPosition.y}`]
+    ) {
+      discoverTile(characterPosition.x, characterPosition.y);
+    }
+  }, [characterPosition, discoverTile, terrainMap]);
 
   const tiles = useMemo(() => {
     return Object.entries(terrainMap).map(([key, terrainType]) => {

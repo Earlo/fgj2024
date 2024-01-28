@@ -16,7 +16,6 @@ export interface TileProps {
 export const Tile = ({ x, y, terrain, level, onClick }: TileProps) => {
   const [scale, setScale] = useState(0);
   const tileRef = useRef<PixiGraphics>(null);
-
   useTick((delta) => {
     if (scale < 1) {
       setScale(scale + 0.05 * delta);
@@ -24,14 +23,11 @@ export const Tile = ({ x, y, terrain, level, onClick }: TileProps) => {
       setScale(1);
     }
   });
-
   useEffect(() => {
     setScale(0);
   }, [terrain]);
-
   const { isoX, isoY } = toIso(x, y);
   const color = getTerrainColor(terrain);
-
   const drawTile = useCallback(
     (g: PixiGraphics) => {
       g.clear();
@@ -47,8 +43,6 @@ export const Tile = ({ x, y, terrain, level, onClick }: TileProps) => {
     [color],
   );
 
-  const handleOnClick = () => onClick(x, y);
-
   return (
     <>
       <Graphics
@@ -57,7 +51,7 @@ export const Tile = ({ x, y, terrain, level, onClick }: TileProps) => {
         y={((1 - scale) * TILE_HEIGHT) / 2 + isoY}
         scale={scale}
         draw={drawTile}
-        pointertap={handleOnClick}
+        pointertap={() => onClick(x, y)}
         interactive
         filters={[new NoiseFilter(0.2)]}
       />
